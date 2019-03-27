@@ -226,7 +226,8 @@ Move mcMove(const State &board, const Player &player)
 {
 	array < array<int, 9>, 9> scoreboard;
 	for (int r = 0; r < 9; r++) {
-		for (int c = 0; c < 9; c++) {
+		for (int c = 0; c < 9; c++) 
+		{
 			scoreboard[r][c] = -999;
 		}
 	}
@@ -237,8 +238,8 @@ Move mcMove(const State &board, const Player &player)
 		State tryBoard = State(board);
 		doMove(tryBoard, moves[j]);
 
-		for (unsigned i = 0; i < n_trials / (PossibleMoveLength); i++) {
-
+		for (unsigned i = 0; i < n_trials / (PossibleMoveLength); i++) 
+		{
 			const State trialboard = mcTrial(board);
 			mcUpdateScores(scoreboard, trialboard, player, moves[j]); //score updating
 		}
