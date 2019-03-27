@@ -5,7 +5,8 @@
 
 using namespace std;
 
-ostream &operator<<(ostream& os, const Player &p) {
+ostream &operator<<(ostream& os, const Player &p) 
+{
 	if (p == Player::None) {
 		os << ".";
 	} else if (p == Player::X) {
@@ -140,7 +141,8 @@ Player getWinner(const State &state)
 vector<Move> getMoves(const State &state)
 {
 	vector<Move> moves;
-	if (getWinner(state) == Player::None) {
+	if (getWinner(state) == Player::None) 
+	{
 		for (int r=0; r<9; r++) {
 			for (int c=0; c<9; c++) {
 				if (state.macroboard[r/3][c/3] == Player::Active && state.board[r][c] == Player::None) {
@@ -152,10 +154,14 @@ vector<Move> getMoves(const State &state)
 	return moves;
 }
 
+//edit part after this comment to make it unique
+
 //trials
-unsigned const n_trials = 400;
-unsigned const mc_match = 1;
-unsigned const mc_other = 1;
+unsigned const n_trials = 200;
+unsigned const mc_win = 2;
+unsigned const mc_tie = 1;
+unsigned const mc_lose = 1;
+
 enum class PlayerType { Human, Computer };
 
 State mcTrial(const State &board)
@@ -189,29 +195,34 @@ void mcUpdateScores(array < array<int, 9>, 9> &scores, const State &board, const
 
 	if (getWinner(board) == player) 
 	{
-		scores[tryMove.x][tryMove.y] += mc_match;
+		// add score if the player move would result in a win
+		scores[tryMove.x][tryMove.y] += mc_win;
 	}
 
 	else if (getWinner(board) == Player::None)
 	{
-
+		// add score if the player move would result in a tie
+		//scores[tryMove.x][tryMove.y] += mc_tie;
 	}
 
 	else 
 	{
-		scores[tryMove.x][tryMove.y] -= mc_other;
+		// decrese score if the player move would result in a loss
+		scores[tryMove.x][tryMove.y] -= mc_lose;
 	}
 }
 
 Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 {
-	int highScore = -9999;
+	int highScore = -999;
 	Move highMove;
 
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 			if (scores[i][j] > highScore)
 			{
+				//loops through all moves and compares it everytime to see if the score is higher than the current highest
+				//if it is set it as the new high score/highMove
 				highScore = scores[i][j];
 				highMove.x = i;
 				highMove.y = j;
@@ -225,7 +236,8 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 Move mcMove(const State &board, const Player &player)
 {
 	array < array<int, 9>, 9> scoreboard;
-	for (int r = 0; r < 9; r++) {
+	for (int r = 0; r < 9; r++) 
+	{
 		for (int c = 0; c < 9; c++) 
 		{
 			scoreboard[r][c] = -999;
@@ -233,8 +245,11 @@ Move mcMove(const State &board, const Player &player)
 	}
 
 	vector<Move> moves = getMoves(board);
+
 	int PossibleMoveLength = moves.size();
-	for (int j = 0; j < moves.size(); j++) {
+
+	for (int j = 0; j < moves.size(); j++) 
+	{
 		State tryBoard = State(board);
 		doMove(tryBoard, moves[j]);
 

@@ -118,4 +118,3 @@ std::vector<std::string> UTTTBot::split(const std::string &s, char delim) {
 	}
 	return elems;
 }
-
