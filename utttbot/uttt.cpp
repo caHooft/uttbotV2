@@ -37,7 +37,7 @@ ostream &operator<<(ostream& os, const State &s) {
 }
 
 ostream &operator<<(ostream& os, const Move &m) {
-	os << m.x << " " << m.y;
+	os << m.y << " " << m.x;
 	return os;
 }
 
@@ -196,7 +196,7 @@ void mcUpdateScores(array < array<int, 9>, 9> &scores, const State &board, const
 	if (getWinner(board) == player) 
 	{
 		// add score if the player move would result in a win
-		scores[tryMove.x][tryMove.y] += mc_win;
+		scores[tryMove.y][tryMove.x] += mc_win;
 	}
 
 	else if (getWinner(board) == Player::None)
@@ -208,7 +208,7 @@ void mcUpdateScores(array < array<int, 9>, 9> &scores, const State &board, const
 	else 
 	{
 		// decrese score if the player move would result in a loss
-		scores[tryMove.x][tryMove.y] -= mc_lose;
+		scores[tryMove.y][tryMove.x] -= mc_lose;
 	}
 }
 
@@ -223,9 +223,10 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 			{
 				//loops through all moves and compares it everytime to see if the score is higher than the current highest
 				//if it is set it as the new high score/highMove
-				highScore = scores[i][j];
-				highMove.x = i;
+				highScore = scores[j][i];
 				highMove.y = j;
+				highMove.x = i;
+				
 			}
 		}
 	}
