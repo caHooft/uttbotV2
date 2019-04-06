@@ -161,49 +161,6 @@ vector<Move> getMoves(const State &state)
 	return moves;
 }
 
-State mcTrial(const State &board)
-{
-	State trialboard = State(board);
-	vector<Move> moves;
-	vector<Move>::iterator move;	
-	moves = getMoves(trialboard);
-	int number = moves.size();
-	
-	while (true)
-	{
-		moves = getMoves(trialboard);
-
-		if (moves.size() == 0) 
-		{
-			return trialboard;
-		}
-
-		move = select_randomly<vector<Move>::iterator>(moves.begin(), moves.end());
-
-		trialboard = doMove(trialboard, *move);
-	}
-
-	return board;
-}
-
-void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
-{
-	int const good = 5;
-	int const bad = 10;
-
-	if (getWinner(board) == player)
-	{
-		scores[tryMove.y][tryMove.x] += good;
-	}
-	
-	else if (getWinner(board) == Player::None)
-	{}
-	else
-	{
-		scores[tryMove.x][tryMove.y] -= bad;
-	}
-}
-
 Move bestStaticMove(const State &board)
 {
 
@@ -369,6 +326,50 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 	
 
 	return bestMove;
+}
+
+State mcTrial(const State &board)
+{
+	State trialboard = State(board);
+	vector<Move> moves;
+	vector<Move>::iterator move;
+	moves = getMoves(trialboard);
+	int number = moves.size();
+
+	while (true)
+	{
+		moves = getMoves(trialboard);
+
+		if (moves.size() == 0)
+		{
+			return trialboard;
+		}
+
+		move = select_randomly<vector<Move>::iterator>(moves.begin(), moves.end());
+
+		trialboard = doMove(trialboard, *move);
+	}
+
+	return board;
+}
+
+void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
+{
+	int const good = 5;
+	int const bad = 10;
+
+	if (getWinner(board) == player)
+	{
+		scores[tryMove.y][tryMove.x] += good;
+	}
+
+	else if (getWinner(board) == Player::None)
+	{
+	}
+	else
+	{
+		scores[tryMove.x][tryMove.y] -= bad;
+	}
 }
 
 Move mcMove(const State &board, const Player &player)

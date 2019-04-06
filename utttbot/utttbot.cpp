@@ -38,9 +38,7 @@ void UTTTBot::move(int timeout)
 		move = Move{ 3,5 };
 		std::cerr << "standard move" << std::endl;
 	}
-	*/
-
-	
+	*/	
 
 	if (getMoves(state).size() == 1) //als er maar 1 move available is, doe die move
 	{
