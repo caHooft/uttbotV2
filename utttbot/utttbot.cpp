@@ -2,7 +2,6 @@
 // Aswin van Woudenberg
 
 #include "utttbot.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -24,29 +23,51 @@ void UTTTBot::run() {
 
 void UTTTBot::move(int timeout) 
 {
-	int trialtime = timeout / 20; //calculate no. of trials
+	std::cerr << state << std::endl;
+	//state.board[0][0] = Player::X;
+	//std::cerr << state << std::endl;
 
 	Move move = Move{ -1,-1 };
+	Move invertMove = Move{ -1,-1 };
 
 	std::vector<Move> moves = getMoves(state);
-	if (state.board[4][4] == Player::None && state.macroboard[1][1] == Player::Active) {
-		move = Move{ 4,4 };
+	if (state.board[3][5] == Player::None && state.macroboard[1][1] == Player::Active) {
+		move = Move{ 3,5 };
+		std::cerr << "standard move" << std::endl;
 	}
-	else {
 
+	else 
+	{
 		Player CurrentPlayer = getCurrentPlayer(state); //get current player
+		std::cerr << "non standard move" << std::endl;
+		if (getMoves(state).size() == 1) 
+		{
+			
+			//move = getMoves(state)[0];
+			invertMove = getMoves(state)[0];
+			move.x = invertMove.y;
+			move.y = invertMove.x;
 
-		if (getMoves(state).size() != 1) {
+			std::cerr << "er is 1 move" << std::endl;
+		}
+
+		else 
+		{
+			std::cerr << "er is meer dan 1 move" << std::endl;
+
 			move = mcMove(state, CurrentPlayer); //move = mcMove(state, CurrentPlayer);
 		}
-		else {
-			move = getMoves(state)[0];
-		}
 	}
 
+	if (move.x == -1)//catch voor als de voorgaande functies niet lukken
+	{
+		std::cerr << "random move" << std::endl;
+		move = *select_randomly(moves.begin(), moves.end());
+	}
+
+	std::cerr << "attempting to place move: " << move.y << move.x << std::endl;
 	std::cout << "place_disc " << move << std::endl; //move
-
-
+	std::cerr << "placed move: " << move.y << move.x << std::endl;
 }
 
 void UTTTBot::update(std::string &key, std::string &value) {
@@ -74,18 +95,25 @@ void UTTTBot::update(std::string &key, std::string &value) {
 		int row = 0;
 		int col = 0;
 		std::vector<std::string> fields = split(value, ',');
-		for (std::string &field : fields) {
-			if (field == "-1") {
+		for (std::string &field : fields)
+		{
+			if (field == "-1") 
+			{
 				state.macroboard[row][col] = Player::Active;
-			} else if (field == "0") {
+			} else if (field == "0") 
+			{
 				state.macroboard[row][col] = Player::X;
-			} else if (field == "1") {
+			} else if (field == "1") 
+			{
 				state.macroboard[row][col] = Player::O;
-			} else {
+			} else 
+			{
 				state.macroboard[row][col] = Player::None;
 			}
 			col++;
-			if (col == 3) {
+
+			if (col == 3) 
+			{
 				row++;
 				col = 0;
 			}
@@ -93,18 +121,24 @@ void UTTTBot::update(std::string &key, std::string &value) {
 	}
 }
 
-void UTTTBot::setting(std::string &key, std::string &value) {
-	if (key == "timebank") {
+void UTTTBot::setting(std::string &key, std::string &value) 
+{
+	if (key == "timebank")
+	{
 		timebank = std::stoi(value);
-	} else if (key == "time_per_move") {
+	} else if (key == "time_per_move") 
+	{
 		time_per_move = std::stoi(value);
-	} else if (key == "player_names") {
+	} else if (key == "player_names") 
+	{
 		std::vector<std::string> names = split(value, ',');
 		player_names[0] = names[0];
 		player_names[1] = names[1];
-	} else if (key == "your_bot") {
+	} else if (key == "your_bot")
+	{
 		your_bot = value;
-	} else if (key == "your_botid") {
+	} else if (key == "your_botid") 
+	{
 		your_botid = std::stoi(value);
 	}
 }
@@ -113,7 +147,8 @@ std::vector<std::string> UTTTBot::split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
 	std::stringstream ss(s);
 	std::string item;
-	while (std::getline(ss, item, delim)) {
+	while (std::getline(ss, item, delim)) 
+	{
 		elems.push_back(item);
 	}
 	return elems;

@@ -5,6 +5,8 @@
 
 using namespace std;
 
+unsigned const trials = 100;
+
 ostream &operator<<(ostream& os, const Player &p) 
 {
 	if (p == Player::None) {
@@ -104,14 +106,19 @@ State doMove(const State &state, const Move &m)
 	for (int r=0; r<9; r++)
 		for (int c=0; c<9; c++)
 			if (result.board[r][c] == Player::None)
+			{
 				empty++;
+			}
+				
 	bool stillPlaying = empty > 0 && getWinner(result) == Player::None;
+	
 	if (result.macroboard[m.y%3][m.x%3] == Player::Active)
 		for (int r=0; r<3; r++)
 			for (int c=0; c<3; c++)
-				if ((r!=m.y%3 || c!=m.x%3 || !stillPlaying) && result.macroboard[r][c] == Player::Active)
+				if ((r != m.y % 3 || c != m.x % 3 || !stillPlaying) && result.macroboard[r][c] == Player::Active)
+				{
 					result.macroboard[r][c] = Player::None;
-
+				}
 	return result; 
 }
 
@@ -154,23 +161,15 @@ vector<Move> getMoves(const State &state)
 	return moves;
 }
 
-//edit part after this comment to make it unique
-
-//trials
-unsigned const n_trials = 200;
-unsigned const mc_win = 2;
-unsigned const mc_tie = 1;
-unsigned const mc_lose = 1;
-
-enum class PlayerType { Human, Computer };
-
 State mcTrial(const State &board)
 {
 	State trialboard = State(board);
 	vector<Move> moves;
-	vector<Move>::iterator move;
-
-	while (1)
+	vector<Move>::iterator move;	
+	moves = getMoves(trialboard);
+	int number = moves.size();
+	
+	while (true)
 	{
 		moves = getMoves(trialboard);
 
@@ -179,87 +178,117 @@ State mcTrial(const State &board)
 			return trialboard;
 		}
 
-		moves = getMoves(trialboard);
 		move = select_randomly<vector<Move>::iterator>(moves.begin(), moves.end());
-
 
 		trialboard = doMove(trialboard, *move);
 	}
+
 	return board;
 }
 
 void mcUpdateScores(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
 {
-	size_t count = 0;
+	int const mc_win = 5;
+	int const mc_lose = 10;
+
 	array < array<Player, 9>, 9>::const_iterator boardIte;
 
-	if (getWinner(board) == player) 
+	if (getWinner(board) == player)
 	{
 		// add score if the player move would result in a win
 		scores[tryMove.y][tryMove.x] += mc_win;
 	}
-
+	
 	else if (getWinner(board) == Player::None)
+	{}
+	else
 	{
-		// add score if the player move would result in a tie
-		//scores[tryMove.x][tryMove.y] += mc_tie;
-	}
-
-	else 
-	{
-		// decrese score if the player move would result in a loss
-		scores[tryMove.y][tryMove.x] -= mc_lose;
+		scores[tryMove.x][tryMove.y] -= mc_lose;
 	}
 }
 
-Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
+Move getBestMove(const std::array < std::array<int, 9>, 9> &scores, const State &board)
 {
 	int highScore = -999;
-	Move highMove;
+	int p = 0;
+	Move nonInverted;
+	Move bestMove;
+	vector<Move> moves = getMoves(board);
 
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
 			if (scores[i][j] > highScore)
 			{
-				//loops through all moves and compares it everytime to see if the score is higher than the current highest
-				//if it is set it as the new high score/highMove
-				highScore = scores[j][i];
-				highMove.y = j;
-				highMove.x = i;
-				
+				highScore = scores[i][j];
+				bestMove.x = i;
+				bestMove.y = j;
+				p++;
 			}
 		}
 	}
 
-	return highMove;
+	if (p == 0)
+	{
+		nonInverted = *select_randomly(moves.begin(), moves.end());
+		bestMove.x = nonInverted.y;
+		bestMove.y = nonInverted.x;
+	}
+	cerr << "p=" << p << endl;
+
+	return bestMove;
 }
 
 Move mcMove(const State &board, const Player &player)
 {
-	array < array<int, 9>, 9> scoreboard;
+	vector<Move> moves = getMoves(board);
+	array < array<int, 9>, 9> score;
+	int possibleMoveLength = moves.size();
+
+	//cerr << "scores voor aanpassen:" << endl;
+
 	for (int r = 0; r < 9; r++) 
 	{
 		for (int c = 0; c < 9; c++) 
 		{
-			scoreboard[r][c] = -999;
+			score[r][c] = -999;
+		
+			//cerr << score[r][c] << endl;
+			// zet elke score op -999
 		}
 	}
 
-	vector<Move> moves = getMoves(board);
-
-	int PossibleMoveLength = moves.size();
-
-	for (int j = 0; j < moves.size(); j++) 
+	cerr << "available moves:" << endl;
+	
+	for (Move m : moves) 
+	{
+		//prints available moves
+		cerr << m.y << ", " << m.x << endl;
+	}
+	
+	for (int j = 0; j < moves.size(); j++)
 	{
 		State tryBoard = State(board);
 		doMove(tryBoard, moves[j]);
 
-		for (unsigned i = 0; i < n_trials / (PossibleMoveLength); i++) 
+		for (unsigned i = 0; i < trials / (possibleMoveLength); i++)
 		{
 			const State trialboard = mcTrial(board);
-			mcUpdateScores(scoreboard, trialboard, player, moves[j]); //score updating
-		}
-	}
+			mcUpdateScores(score, trialboard, player, moves[j]); //score updating
+		}	
+		
+		cerr << "scores na aanpassen:" << endl;
 
-	return getBestMove(scoreboard, board); //best move
+		for (int r = 0; r < 9; r++)
+		{
+			for (int c = 0; c < 9; c++)
+			{
+				
+
+				cerr << score[r][c] << endl;
+			}
+		}	
+	}
+	return getBestMove(score, board); //best move
 }
