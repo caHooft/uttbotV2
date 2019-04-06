@@ -186,56 +186,187 @@ State mcTrial(const State &board)
 	return board;
 }
 
-void mcUpdateScores(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
+void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
 {
-	int const mc_win = 5;
-	int const mc_lose = 10;
-
-	array < array<Player, 9>, 9>::const_iterator boardIte;
+	int const good = 5;
+	int const bad = 10;
 
 	if (getWinner(board) == player)
 	{
-		// add score if the player move would result in a win
-		scores[tryMove.y][tryMove.x] += mc_win;
+		scores[tryMove.y][tryMove.x] += good;
 	}
 	
 	else if (getWinner(board) == Player::None)
 	{}
 	else
 	{
-		scores[tryMove.x][tryMove.y] -= mc_lose;
+		scores[tryMove.x][tryMove.y] -= bad;
 	}
 }
 
-Move getBestMove(const std::array < std::array<int, 9>, 9> &scores, const State &board)
+Move bestStaticMove(const State &board)
+{
+
+	//if left upper square of microboard is not taken by enemy, take it!
+	Move beststaticMove;
+	int count = 0;
+	vector<Move> moves = getMoves(board);
+	
+	for (Move m : moves) //loops through all valid moves if a valid move is an upper left spot, take it!
+	{
+		if (m.x == 0 && m.y ==0)
+		{
+			beststaticMove = Move{ 0,0 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 0)
+		{
+			beststaticMove = Move{ 3,0 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 0)
+		{
+			beststaticMove = Move{ 6,0 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 0 && m.y == 3)
+		{
+			beststaticMove = Move{ 0,3 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 0 && m.y == 6)
+		{
+			beststaticMove = Move{ 0,6 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 3)
+		{
+			beststaticMove = Move{ 3,3 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 6)
+		{
+			beststaticMove = Move{ 3,6 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 3)
+		{
+			beststaticMove = Move{ 6,3 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 6)
+		{
+			beststaticMove = Move{ 6,6 };
+			count++;
+			cerr << "standard Static move" << endl;
+		}
+	}
+
+	return beststaticMove;
+}
+
+Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 {
 	int highScore = -999;
 	int p = 0;
+	int count = 0;
 	Move nonInverted;
 	Move bestMove;
 	vector<Move> moves = getMoves(board);
 
-	for (int i = 0; i < 9; i++)
+	for (Move m : moves) //loops through all valid moves if a valid move is an upper left spot, take it!
+		//this effectively gives the opponent only the option to place in the upper left corer while my bot gains the advantage in all other spots
 	{
-		for (int j = 0; j < 9; j++)
+		if (m.x == 0 && m.y == 0)
 		{
-			if (scores[i][j] > highScore)
-			{
-				highScore = scores[i][j];
-				bestMove.x = i;
-				bestMove.y = j;
-				p++;
-			}
+			bestMove = Move{ 0,0 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 0)
+		{
+			//bestMove = Move{ 3,0 };
+			bestMove = Move{ 0,3 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 0)
+		{
+			bestMove = Move{ 0,6 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 0 && m.y == 3)
+		{
+			bestMove = Move{ 3,0 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 0 && m.y == 6)
+		{
+			bestMove = Move{ 6,0 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 3)
+		{
+			bestMove = Move{ 3,3 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 3 && m.y == 6)
+		{
+			bestMove = Move{ 6,3 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 3)
+		{
+			bestMove = Move{ 3,6 };
+			count++;
+			cerr << "Static move" << endl;
+		}
+		else if (m.x == 6 && m.y == 6)
+		{
+			bestMove = Move{ 6,6 };
+			count++;
+			cerr << "Static move" << endl;
 		}
 	}
 
-	if (p == 0)
+	if (count == 0) //
 	{
-		nonInverted = *select_randomly(moves.begin(), moves.end());
-		bestMove.x = nonInverted.y;
-		bestMove.y = nonInverted.x;
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				if (scores[i][j] > highScore)
+				{
+					highScore = scores[i][j];
+					bestMove.x = i;
+					bestMove.y = j;
+					p++;
+				}
+			}
+		}
+
+		if (p == 0)//when no moves are moves that have gotten a higher score than -999 activate this to get a random move
+		{
+			nonInverted = *select_randomly(moves.begin(), moves.end());
+			bestMove.x = nonInverted.y;
+			bestMove.y = nonInverted.x;
+		}
+		cerr << "p=" << p << endl;
 	}
-	cerr << "p=" << p << endl;
+	
 
 	return bestMove;
 }
@@ -246,19 +377,6 @@ Move mcMove(const State &board, const Player &player)
 	array < array<int, 9>, 9> score;
 	int possibleMoveLength = moves.size();
 
-	//cerr << "scores voor aanpassen:" << endl;
-
-	for (int r = 0; r < 9; r++) 
-	{
-		for (int c = 0; c < 9; c++) 
-		{
-			score[r][c] = -999;
-		
-			//cerr << score[r][c] << endl;
-			// zet elke score op -999
-		}
-	}
-
 	cerr << "available moves:" << endl;
 	
 	for (Move m : moves) 
@@ -266,29 +384,39 @@ Move mcMove(const State &board, const Player &player)
 		//prints available moves
 		cerr << m.y << ", " << m.x << endl;
 	}
+
+	for (int r = 0; r < 9; r++)
+	{
+		for (int c = 0; c < 9; c++)
+		{
+			score[r][c] = -999;
+
+			//cerr << score[r][c] << endl;
+			// zet elke score op -999
+		}
+	}
 	
 	for (int j = 0; j < moves.size(); j++)
 	{
-		State tryBoard = State(board);
-		doMove(tryBoard, moves[j]);
+		State trial = State(board);
+		doMove(trial, moves[j]);
 
 		for (unsigned i = 0; i < trials / (possibleMoveLength); i++)
 		{
 			const State trialboard = mcTrial(board);
-			mcUpdateScores(score, trialboard, player, moves[j]); //score updating
+			mcEval(score, trialboard, player, moves[j]); //score updating
 		}	
-		
+		/*
 		cerr << "scores na aanpassen:" << endl;
 
 		for (int r = 0; r < 9; r++)
 		{
 			for (int c = 0; c < 9; c++)
 			{
-				
-
 				cerr << score[r][c] << endl;
 			}
 		}	
+		*/
 	}
 	return getBestMove(score, board); //best move
 }
