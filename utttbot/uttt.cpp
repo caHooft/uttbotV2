@@ -4,7 +4,6 @@
 #include "uttt.h"
 
 using namespace std;
-
 unsigned const trials = 100;
 
 ostream &operator<<(ostream& os, const Player &p) 
@@ -173,6 +172,7 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 	for (Move m : moves) //loops through all valid moves if a valid move is an upper left spot, take it!
 	//this effectively gives the opponent only the option to place in the upper left corer while my bot gains the advantage in all other spots
 	{
+		
 		for (int i = 0; i < 7; i += 3)
 		{
 			for (int j = 0; j < 7; j += 3)
@@ -202,6 +202,7 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 					bestMove.x = i;
 					bestMove.y = j;
 					p++;
+					cerr << "Monte Carlo move" << endl;
 				}
 			}
 		}
@@ -211,8 +212,9 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 			nonInverted = *select_randomly(moves.begin(), moves.end());
 			bestMove.x = nonInverted.y;
 			bestMove.y = nonInverted.x;
+			cerr << "backup move" << endl;
 		}
-		cerr << "p=" << p << endl;
+		
 	}
 	
 
@@ -243,6 +245,20 @@ State mcTrial(const State &board)
 
 	return board;
 }
+
+void mcCheck(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
+{
+	int macroX = tryMove.x / 3;
+	int macroY = tryMove.y / 3;
+	int microX = tryMove.x % 3;
+	int microY = tryMove.y % 3;
+
+	//macroX * 3 + microX
+	//macroY * 3 + microY
+
+
+}
+
 
 void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
 {
