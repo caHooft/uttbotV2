@@ -161,75 +161,6 @@ vector<Move> getMoves(const State &state)
 	return moves;
 }
 
-Move bestStaticMove(const State &board)
-{
-
-	//if left upper square of microboard is not taken by enemy, take it!
-	Move beststaticMove;
-	int count = 0;
-	vector<Move> moves = getMoves(board);
-	
-	for (Move m : moves) //loops through all valid moves if a valid move is an upper left spot, take it!
-	{
-		if (m.x == 0 && m.y ==0)
-		{
-			beststaticMove = Move{ 0,0 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 3 && m.y == 0)
-		{
-			beststaticMove = Move{ 3,0 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 0)
-		{
-			beststaticMove = Move{ 6,0 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 0 && m.y == 3)
-		{
-			beststaticMove = Move{ 0,3 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 0 && m.y == 6)
-		{
-			beststaticMove = Move{ 0,6 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 3 && m.y == 3)
-		{
-			beststaticMove = Move{ 3,3 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 3 && m.y == 6)
-		{
-			beststaticMove = Move{ 3,6 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 3)
-		{
-			beststaticMove = Move{ 6,3 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 6)
-		{
-			beststaticMove = Move{ 6,6 };
-			count++;
-			cerr << "standard Static move" << endl;
-		}
-	}
-
-	return beststaticMove;
-}
-
 Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 {
 	int highScore = -999;
@@ -240,66 +171,26 @@ Move getBestMove(const array < array<int, 9>, 9> &scores, const State &board)
 	vector<Move> moves = getMoves(board);
 
 	for (Move m : moves) //loops through all valid moves if a valid move is an upper left spot, take it!
-		//this effectively gives the opponent only the option to place in the upper left corer while my bot gains the advantage in all other spots
+	//this effectively gives the opponent only the option to place in the upper left corer while my bot gains the advantage in all other spots
 	{
-		if (m.x == 0 && m.y == 0)
+		for (int i = 0; i < 7; i += 3)
 		{
-			bestMove = Move{ 0,0 };
-			count++;
-			cerr << "Static move" << endl;
+			for (int j = 0; j < 7; j += 3)
+			{
+				if (m.x == i && m.y == j)
+				{
+					bestMove.x = j;
+					bestMove.y = i;
+					count++;
+					cerr << "Static move" << endl;
+
+				}
+			}
 		}
-		else if (m.x == 3 && m.y == 0)
-		{
-			//bestMove = Move{ 3,0 };
-			bestMove = Move{ 0,3 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 0)
-		{
-			bestMove = Move{ 0,6 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 0 && m.y == 3)
-		{
-			bestMove = Move{ 3,0 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 0 && m.y == 6)
-		{
-			bestMove = Move{ 6,0 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 3 && m.y == 3)
-		{
-			bestMove = Move{ 3,3 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 3 && m.y == 6)
-		{
-			bestMove = Move{ 6,3 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 3)
-		{
-			bestMove = Move{ 3,6 };
-			count++;
-			cerr << "Static move" << endl;
-		}
-		else if (m.x == 6 && m.y == 6)
-		{
-			bestMove = Move{ 6,6 };
-			count++;
-			cerr << "Static move" << endl;
-		}
+
 	}
 
-	if (count == 0) //
+	if (count == 0)// if there is no left spot available in active microboard use monte carlo to find best move instead
 	{
 		for (int i = 0; i < 9; i++)
 		{
@@ -355,12 +246,9 @@ State mcTrial(const State &board)
 
 void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player &player, Move &tryMove)
 {
-	int const good = 5;
-	int const bad = 10;
-
 	if (getWinner(board) == player)
 	{
-		scores[tryMove.y][tryMove.x] += good;
+		scores[tryMove.y][tryMove.x] += 1;
 	}
 
 	else if (getWinner(board) == Player::None)
@@ -368,7 +256,7 @@ void mcEval(array < array<int, 9>, 9> &scores, const State &board, const Player 
 	}
 	else
 	{
-		scores[tryMove.x][tryMove.y] -= bad;
+		scores[tryMove.x][tryMove.y] -= 1;
 	}
 }
 

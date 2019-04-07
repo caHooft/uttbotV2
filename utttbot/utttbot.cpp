@@ -31,15 +31,6 @@ void UTTTBot::move(int timeout)
 
 	std::vector<Move> moves = getMoves(state);
 
-
-	/*
-	if (state.board[3][5] == Player::None && state.macroboard[1][1] == Player::Active) 
-	{
-		move = Move{ 3,5 };
-		std::cerr << "standard move" << std::endl;
-	}
-	*/	
-
 	if (getMoves(state).size() == 1) //als er maar 1 move available is, doe die move
 	{
 			
@@ -47,14 +38,12 @@ void UTTTBot::move(int timeout)
 		invertMove = getMoves(state)[0];
 		move.x = invertMove.y;
 		move.y = invertMove.x;
-
 		std::cerr << "er is 1 move" << std::endl;
 	}
 
 	else 
 	{
 		std::cerr << "er is meer dan 1 move" << std::endl;
-
 		move = mcMove(state, CurrentPlayer); //move = mcMove(state, CurrentPlayer);
 	}
 	
@@ -66,7 +55,7 @@ void UTTTBot::move(int timeout)
 	}
 
 	std::cerr << "attempting to place move: " << move.y << move.x << std::endl;
-	std::cout << "place_disc " << move << std::endl; //move
+	std::cout << "place_disc " << move << std::endl;
 	std::cerr << "placed move: " << move.y << move.x << std::endl;
 }
 
